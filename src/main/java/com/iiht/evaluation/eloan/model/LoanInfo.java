@@ -38,6 +38,12 @@ public class LoanInfo {
 		this.status=status;
 		this.username=username;
 	}
+	 
+	 public LoanInfo(String applno,String status) {
+			super();
+			this.applno = applno;
+			this.status=status;
+		}
 
 	public String getApplno() {
 		return applno;

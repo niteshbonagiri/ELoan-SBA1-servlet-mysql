@@ -231,13 +231,33 @@ public class ConnectionDao {
 		
 		PreparedStatement pstmt = this.jdbcConnection.prepareStatement(sql);
 		
-		pstmt.setInt(1, loan.getApplno());
+		pstmt.setString(1, loan.getApplno());
 		pstmt.setInt(2, loan.getAmotsanctioned());
 		pstmt.setInt(3, loan.getLoanterm());
 		pstmt.setString(4, loan.getPsd());
 		pstmt.setString(5, loan.getLcd());
 		pstmt.setInt(6, loan.getEmi());
 	
+		
+		int n = pstmt.executeUpdate();
+		
+		pstmt.close();
+		this.disconnect();
+		
+		if(n>0)
+			return true;
+		return false;
+	}
+	
+	public boolean updateApproved (LoanInfo info) throws ClassNotFoundException, SQLException {
+		String sql = "update loaninfo set status=? where applno=?";
+		this.connect();
+		
+		PreparedStatement pstmt = this.jdbcConnection.prepareStatement(sql);
+		
+		
+		pstmt.setString(1, info.getStatus());
+		pstmt.setString(2, info.getApplno());
 		
 		int n = pstmt.executeUpdate();
 		

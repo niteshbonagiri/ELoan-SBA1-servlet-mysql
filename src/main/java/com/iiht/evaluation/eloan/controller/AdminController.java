@@ -96,10 +96,17 @@ public class AdminController extends HttpServlet {
 		int emi=termPaymentAmount/term;
 		int months=termPaymentAmount/emi;
 		String loanclosureDate=LocalDate.parse(paymentstrtdate, DateTimeFormatter.ofPattern("yyyy-MM-dd")).plusMonths(months).toString();
-		int appno=Integer.parseInt((String) request.getAttribute("appno")) ;
+		String appno= request.getParameter("appno") ;
 		ApprovedLoan loan=new ApprovedLoan(appno,loanAmtSanctioned,term,paymentstrtdate,loanclosureDate,emi);
 		if(connDao.approveLoan(loan)) {
 			request.setAttribute("message", "Loan Approved");
+			LoanInfo info=new LoanInfo(appno,"Approved");
+			LoanInfo info2=connDao.getLoanStatus(appno);
+			request.setAttribute("LoanInfo", info2);
+			if(connDao.updateApproved(info))
+			{
+				request.setAttribute("status", "Approved");
+			}
 				view = "calemi.jsp";
 		}
 	} catch (Exception e) {
@@ -116,7 +123,7 @@ public class AdminController extends HttpServlet {
 			connDao.connect();
 			String appno=request.getParameter("appno");
 			if(connDao.validateApplicationNumber(appno)) {
-				request.setAttribute("message", "Application found");
+				//request.setAttribute("message", "Application found");
 				request.setAttribute("appno", appno);
 				LoanInfo info=connDao.getLoanStatus(appno);
 				request.setAttribute("LoanInfo", info);

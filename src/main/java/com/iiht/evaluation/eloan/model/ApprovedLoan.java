@@ -1,7 +1,7 @@
 package com.iiht.evaluation.eloan.model;
 
 public class ApprovedLoan {
-	int applno;
+	String applno;
 	int amotsanctioned;
 	int loanterm;
 	String psd;
@@ -13,7 +13,7 @@ public class ApprovedLoan {
 		// TODO Auto-generated constructor stub
 	}
 
-	public ApprovedLoan(int applno, int amotsanctioned, int loanterm, String psd, String lcd, int emi) {
+	public ApprovedLoan(String applno, int amotsanctioned, int loanterm, String psd, String lcd, int emi) {
 		super();
 		this.applno = applno;
 		this.amotsanctioned = amotsanctioned;
@@ -23,11 +23,11 @@ public class ApprovedLoan {
 		this.emi = emi;
 	}
 
-	public int getApplno() {
+	public String getApplno() {
 		return applno;
 	}
 
-	public void setApplno(int applno) {
+	public void setApplno(String applno) {
 		this.applno = applno;
 	}
 

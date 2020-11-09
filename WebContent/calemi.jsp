@@ -26,8 +26,7 @@
 <br/>
 		<% 
 		LoanInfo info = (LoanInfo)request.getAttribute("LoanInfo");
-		request.setAttribute("appno", info.getApplno());
-	%>
+		%>
 		<%
 		if (request.getAttribute("message") != null) {
 		String message = request.getAttribute("message").toString();
@@ -41,10 +40,6 @@
 			<td><label>Loan Name: </label> </td>
 			<td><%= info.getPurpose()    %></td>
 	   </tr>
-	    <tr>
-			<td><label>Loan Application Number:</label>  </td>
-			<td> <%= info.getApplno()   %></td>
-	 	</tr>
 	 	<tr>
 			<td><label> Loan Amount Requested: </label></td>
 			<td> <%= info.getAmtrequest()  %></td>
@@ -83,7 +78,12 @@
 		</tr>
 	</table>
 	<form action="admin?action=updatestatus" method="post">
+
 	<table>
+		 <tr>
+			<td><label>Loan Application Number:</label>  </td>
+			<td> <input type="text" name="appno" value=<%= info.getApplno()  %> readonly="readonly"></input></td>
+	 	</tr>
 		<tr>
 			<td><label>Loan Amount Sanctioned: </label> </td>
 			<td><input type="text" name="loanAmtSanctioned" required></input> </td>
