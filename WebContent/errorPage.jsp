@@ -4,7 +4,7 @@
 <html>
 <head>
 <meta charset="ISO-8859-1">
-<title>Corona Kit-Error</title>
+<title>eLoan Processing System-Error</title>
 </head>
 <body>
 <jsp:include page="header.jsp"/>

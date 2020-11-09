@@ -1,11 +1,7 @@
 package com.iiht.evaluation.eloan.controller;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
@@ -14,12 +10,11 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import com.iiht.evaluation.eloan.dao.ConnectionDao;
-import com.iiht.evaluation.eloan.model.ApprovedLoan;
 import com.iiht.evaluation.eloan.model.LoanInfo;
 import com.iiht.evaluation.eloan.model.User;
-import com.mysql.cj.xdevapi.Statement;
 
 
 
@@ -27,7 +22,8 @@ import com.mysql.cj.xdevapi.Statement;
 @WebServlet("/user")
 public class UserController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-private ConnectionDao connDao;
+	private ConnectionDao connDao;
+	HttpSession session;
 	
 	public void setConnDao(ConnectionDao connDao) {
 		this.connDao = connDao;
@@ -95,73 +91,232 @@ private ConnectionDao connDao;
 					request.getRequestDispatcher(viewName);
 			dispatch.forward(request, response);
 	}
+	
 	private String validate(HttpServletRequest request, HttpServletResponse response) throws SQLException {
 		/* write the code to validate the user */
-		
-		return null;
+		String view = "";
+		try {
+			session = request.getSession();
+			connDao.connect();
+			String username=request.getParameter("username");
+			String password=request.getParameter("password");
+			//HttpSession session = request.getSession();
+			if ((username.equals("admin")) && (password.equals("admin"))) {
+				session.setAttribute("isAdmin", true);
+				view = "adminhome1.jsp";
+			} else {
+				if(connDao.validateUser(username, password)) {
+					session.setAttribute("username", username);
+					view = "userhome1.jsp";
+				} else {
+					request.setAttribute("message", "Incorrect User Name or Password");
+					view = "index.jsp";
+				}
+					
+			}
+		} catch (Exception e) {
+			request.setAttribute("error", e.getMessage());
+			view = "errorPage.jsp";
+		}
+		return view;
 	}
 	private String placeloan(HttpServletRequest request, HttpServletResponse response) {
-		// TODO Auto-generated method stub
 	/* write the code to place the loan information */
+		String view="";
+		try {
+		String loanappnumber=request.getParameter("loanappnumber");
+		String loanname=request.getParameter("loanname");
+		String loanamtrequested=request.getParameter("loanamtrequested");
+		String loanapplicationdate=request.getParameter("loanapplicationdate");
+		String businessstructure=request.getParameter("businessstructure");
+		String billingindicator=request.getParameter("billingindicator");
+		String taxpayer=request.getParameter("taxpayer");
+		String address=request.getParameter("address");
+		String email=request.getParameter("email");
+		String mobile=request.getParameter("mobile");
+		String username=(String) session.getAttribute("username");
+		LoanInfo info=new LoanInfo(loanappnumber,loanname,Integer.parseInt(loanamtrequested),loanapplicationdate,
+				businessstructure,billingindicator,taxpayer,address,email,mobile,"Pending",username);
+		if(connDao.applyLoan(info)) {
+			request.setAttribute("message", "Loan application successful");
+				view = "application.jsp";
+		}
+	} catch (Exception e) {
+		request.setAttribute("error", e.getMessage());
+		view = "errorPage.jsp";
+	}
+	return view;
 		
-		return null;
 	}
 	private String application1(HttpServletRequest request, HttpServletResponse response) {
-		// TODO Auto-generated method stub
 	/* write the code to display the loan application page */
 		
-		return null;
+		return "application1.jsp";
 	}
 	private String editLoanProcess(HttpServletRequest request, HttpServletResponse response) throws SQLException {
 		// TODO Auto-generated method stub
 		/* write the code to edit the loan info */
-		
-		return null;
+//		String view="";
+//		try {
+//			connDao.connect();
+//			String appno=(String) request.getAttribute("appno");
+//			LoanInfo info=connDao.getLoanStatus(appno);
+//			request.setAttribute("LoanInfo", info);
+//			view= "editloanui.jsp";
+//		}
+//		catch(Exception e) {
+//			request.setAttribute("error", e.getMessage());
+//			view = "errorPage.jsp";
+//		}
+//		return view;
+		String view="";
+		try {
+		String loanappnumber=request.getParameter("loanappnumber");
+		String loanname=request.getParameter("loanname");
+		String loanamtrequested=request.getParameter("loanamtrequested");
+		String loanapplicationdate=request.getParameter("loanapplicationdate");
+		String businessstructure=request.getParameter("businessstructure");
+		String billingindicator=request.getParameter("billingindicator");
+		String taxpayer=request.getParameter("taxpayer");
+		String address=request.getParameter("address");
+		String email=request.getParameter("email");
+		String mobile=request.getParameter("mobile");
+		String username=(String) session.getAttribute("username");
+		LoanInfo info=new LoanInfo(loanappnumber,loanname,Integer.parseInt(loanamtrequested),loanapplicationdate,
+				businessstructure,billingindicator,taxpayer,address,email,mobile,"Pending",username);
+		if(connDao.editLoan(info)) {
+			request.setAttribute("message", "Loan application edit successful");
+				view = "application.jsp";
+		}
+	} catch (Exception e) {
+		request.setAttribute("error", e.getMessage());
+		view = "errorPage.jsp";
+	}
+	return view;
 	}
 	private String registerUser(HttpServletRequest request, HttpServletResponse response) throws SQLException {
 		// TODO Auto-generated method stub
 		/* write the code to redirect page to read the user details */
-		return "newuserui.jsp";
+		String view = "";
+		try {
+			connDao.connect();
+			String username=request.getParameter("username");
+			if(connDao.validateUsernameExists(username)) {
+				request.setAttribute("message", "Username "+username +" already exists.Please choose a different Username");
+					view = "newuserui.jsp";
+			} else {
+				view="user?action=registernewuser";
+			}
+		} catch (Exception e) {
+			request.setAttribute("error", e.getMessage());
+			view = "errorPage.jsp";
+		}
+		return view;
 	}
 	private String registernewuser(HttpServletRequest request, HttpServletResponse response) throws SQLException {
-		// TODO Auto-generated method stub
 		/* write the code to create the new user account read from user 
 		   and return to index page */
-		
-		return null;
+		String view = "";
+		try {
+			connDao.connect();
+			String firstname=request.getParameter("firstname");
+			String lastname=request.getParameter("lastname");
+			String username=request.getParameter("username");
+			String password=request.getParameter("password");
+			User user=new User(firstname,lastname,username,password);
+			if(connDao.addUserRecord(user)) {
+				request.setAttribute("message", "Registration Successful");
+					view = "newuserui.jsp";
+			}
+		} catch (Exception e) {
+			request.setAttribute("error", e.getMessage());
+			view = "errorPage.jsp";
+		}
+		return view;
 	}
 	
 	private String register(HttpServletRequest request, HttpServletResponse response) {
-		// TODO Auto-generated method stub
 		/* write the code to redirect to register page */
 		
-		return null;
+		return "newuserui.jsp";
 	}
 	private String displaystatus(HttpServletRequest request, HttpServletResponse response) throws SQLException {
-		// TODO Auto-generated method stub
 		/* write the code the display the loan status based on the given application
 		   number 
 		*/
-		
-		return null;
+		String view="";
+		try {
+			connDao.connect();
+			String appno=(String) request.getAttribute("appno");
+			LoanInfo info=connDao.getLoanStatus(appno);
+			request.setAttribute("LoanInfo", info);
+			view= "loanDetails.jsp";
+		}
+		catch(Exception e) {
+			request.setAttribute("error", e.getMessage());
+			view = "errorPage.jsp";
+		}
+		return view;
 	}
 
 	private String editloan(HttpServletRequest request, HttpServletResponse response) {
-		// TODO Auto-generated method stub
 	/* write a code to return to editloan page */
-		return null;
+		String view = "";
+		try {
+			connDao.connect();
+			String appno=request.getParameter("appno");
+			if(connDao.validateApplicationNumber(appno)) {
+				request.setAttribute("appno", appno);
+				//view = "user?action=editLoanProcess";
+				LoanInfo info=connDao.getLoanStatus(appno);
+				request.setAttribute("LoanInfo", info);
+				view= "editloanui.jsp";
+			} else
+			{
+				request.setAttribute("message", "Application Not found");
+				view = "editloan.jsp";
+			}
+		} catch (Exception e) {
+			request.setAttribute("error", e.getMessage());
+			view = "errorPage.jsp";
+		}
+		return view;
 	}
 
 	private String trackloan(HttpServletRequest request, HttpServletResponse response) {
-		// TODO Auto-generated method stub
 	/* write a code to return to trackloan page */
-		
-		return null;
+		String view = "";
+		try {
+			connDao.connect();
+			String appno=request.getParameter("appno");
+			if(connDao.validateApplicationNumber(appno)) {
+				request.setAttribute("message", "Application found");
+				request.setAttribute("appno", appno);
+					view = "user?action=displaystatus";
+			} else
+			{
+				request.setAttribute("message", "Application Not found");
+				view = "trackloan.jsp";
+			}
+		} catch (Exception e) {
+			request.setAttribute("error", e.getMessage());
+			view = "errorPage.jsp";
+		}
+		return view;
 	}
 
 	private String application(HttpServletRequest request, HttpServletResponse response) {
 		// TODO Auto-generated method stub
 	/* write a code to return to trackloan page */
-		return null;
+		String view="";
+		try {
+			connDao.connect();
+			request.setAttribute("appno",connDao.generateApplicationNumber());
+			view="application.jsp";
+		} catch (Exception e) {
+			request.setAttribute("error", e.getMessage());
+			view = "errorPage.jsp";
+		}
+		return view;
 	}
 }

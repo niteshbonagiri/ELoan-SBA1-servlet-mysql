@@ -7,21 +7,23 @@ public class LoanInfo {
 	 private String doa;
 	 private String bstructure;
 	 private String bindicator;
-	 private String address;
+	 private String taxindicator;
+	private String address;
 	 @Override
 	public String toString() {
 		return "LoanInfo [applno=" + applno + ", purpose=" + purpose + ", amtrequest=" + amtrequest + ", doa=" + doa
-				+ ", bstructure=" + bstructure + ", bindicator=" + bindicator + ", address=" + address + ", email="
+				+ ", bstructure=" + bstructure + ", bindicator=" + bindicator + ", taxindicator=" + taxindicator +",address=" + address + ", email="
 				+ email + ", mobile=" + mobile + ", status=" + status + "]";
 	}
 	private String email;
 	 private String mobile;
 	 private String status;
+	 private String username;
 	 public LoanInfo() {
 		 
 	 }
-	 public LoanInfo(String applno, String purpose, int amtrequest, String doa, String bstructure, String bindicator,
-			String address, String email, String mobile,String status) {
+	 public LoanInfo(String applno, String purpose, int amtrequest, String doa, String bstructure, String bindicator,String taxindicator,
+			String address, String email, String mobile,String status,String username) {
 		super();
 		this.applno = applno;
 		this.purpose = purpose;
@@ -29,10 +31,12 @@ public class LoanInfo {
 		this.doa = doa;
 		this.bstructure = bstructure;
 		this.bindicator = bindicator;
+		this.taxindicator=taxindicator;
 		this.address = address;
 		this.email = email;
 		this.mobile = mobile;
 		this.status=status;
+		this.username=username;
 	}
 
 	public String getApplno() {
@@ -71,6 +75,12 @@ public class LoanInfo {
 	public void setBindicator(String bindicator) {
 		this.bindicator = bindicator;
 	}
+	public String getTaxindicator() {
+		return taxindicator;
+	}
+	public void setTaxindicator(String taxindicator) {
+		this.taxindicator = taxindicator;
+	}
 	public String getAddress() {
 		return address;
 	}
@@ -95,5 +105,12 @@ public class LoanInfo {
 	public String getStatus() {
 		return status;
 	}
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	
 
 }

@@ -10,7 +10,7 @@
   
   <context-param>
   	<param-name>jdbcUrl</param-name>
-  	<param-value>jdbc:mysql://localhost:3306/test</param-value>
+  	<param-value>jdbc:mysql://localhost:3306/eloan</param-value>
   </context-param>
   <context-param>
   	<param-name>jdbcUsername</param-name>

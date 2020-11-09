@@ -6,7 +6,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.RequestDispatcher;
@@ -16,6 +20,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import com.iiht.evaluation.eloan.dao.ConnectionDao;
 import com.iiht.evaluation.eloan.dto.LoanDto;
@@ -81,30 +86,92 @@ public class AdminController extends HttpServlet {
 	private String updatestatus(HttpServletRequest request, HttpServletResponse response) throws SQLException {
 		// TODO Auto-generated method stub
 		/* write the code for updatestatus of loan and return to admin home page */
+		String view="";
+		try {
+		int loanAmtSanctioned=Integer.parseInt(request.getParameter("loanAmtSanctioned"));
+		int term=Integer.parseInt(request.getParameter("term"));
+		String paymentstrtdate=request.getParameter("paymentstrtdate");
 		
-		return null;
+		int termPaymentAmount=loanAmtSanctioned*(1+10/100)^term;
+		int emi=termPaymentAmount/term;
+		int months=termPaymentAmount/emi;
+		String loanclosureDate=LocalDate.parse(paymentstrtdate, DateTimeFormatter.ofPattern("yyyy-MM-dd")).plusMonths(months).toString();
+		int appno=Integer.parseInt((String) request.getAttribute("appno")) ;
+		ApprovedLoan loan=new ApprovedLoan(appno,loanAmtSanctioned,term,paymentstrtdate,loanclosureDate,emi);
+		if(connDao.approveLoan(loan)) {
+			request.setAttribute("message", "Loan Approved");
+				view = "calemi.jsp";
+		}
+	} catch (Exception e) {
+		request.setAttribute("error", e.getMessage());
+		view = "errorPage.jsp";
 	}
+	return view;
+	}
+	
 	private String calemi(HttpServletRequest request, HttpServletResponse response) throws SQLException {
-		// TODO Auto-generated method stub
 	/* write the code to calculate emi for given applno and display the details */
-		
-		return null;
+		String view = "";
+		try {
+			connDao.connect();
+			String appno=request.getParameter("appno");
+			if(connDao.validateApplicationNumber(appno)) {
+				request.setAttribute("message", "Application found");
+				request.setAttribute("appno", appno);
+				LoanInfo info=connDao.getLoanStatus(appno);
+				request.setAttribute("LoanInfo", info);
+				view = "calemi.jsp";
+			} else {
+				request.setAttribute("message", "Application Not found");
+				view = "process.jsp";
+			}
+		} catch (Exception e) {
+			request.setAttribute("error", e.getMessage());
+			view = "errorPage.jsp";
+		}
+		return view;
 	}
 	private String process(HttpServletRequest request, HttpServletResponse response) throws SQLException {
 		// TODO Auto-generated method stub
 	/* return to process page */
-		return  null;
+		String view = "";
+		try {
+			view = "process.jsp";
+		} catch (Exception e) {
+			request.setAttribute("error", e.getMessage());
+			view = "errorPage.jsp";
+		}
+		return view;
 	}
 	private String adminLogout(HttpServletRequest request, HttpServletResponse response) {
 		// TODO Auto-generated method stub
 	/* write code to return index page */
-		return null;
+		String view = "";
+		try {
+			HttpSession session = request.getSession();
+			session.setAttribute("isAdmin", null);
+			view = "index.jsp";
+		} catch (Exception e) {
+			request.setAttribute("error", e.getMessage());
+			view = "error.jsp";
+		}
+		return view;
 	}
 
 	private String listall(HttpServletRequest request, HttpServletResponse response) throws SQLException {
 	/* write the code to display all the loans */
-		
-		return null;
+		String view="";
+		try {
+			connDao.connect();
+			ArrayList<LoanInfo> list=connDao.getAllLoans();
+			request.setAttribute("LoanInfo", list);
+			view= "listall.jsp";
+		}
+		catch(Exception e) {
+			request.setAttribute("error", e.getMessage());
+			view = "errorPage.jsp";
+		}
+		return view;
 	}
 
 	
