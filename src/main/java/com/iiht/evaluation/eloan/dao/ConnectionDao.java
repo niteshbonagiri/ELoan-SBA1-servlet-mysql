@@ -268,4 +268,20 @@ public class ConnectionDao {
 			return true;
 		return false;
 	}
+	
+	public boolean validateApplicationNumber(String appno,String username) throws ClassNotFoundException, SQLException {
+		boolean flag=false;
+		String sql = "select * from loaninfo where applno ="+appno +" and username='"+username+"'";
+		this.connect();
+		
+		Statement stmt = this.jdbcConnection.createStatement();
+		ResultSet rs =  stmt.executeQuery(sql);
+		if(rs.next()) {
+				flag=true;
+			}
+		rs.close();
+		stmt.close();
+		this.disconnect();
+		return flag;
+	}
 }

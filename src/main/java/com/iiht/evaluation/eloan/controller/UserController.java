@@ -156,19 +156,6 @@ public class UserController extends HttpServlet {
 	private String editLoanProcess(HttpServletRequest request, HttpServletResponse response) throws SQLException {
 		// TODO Auto-generated method stub
 		/* write the code to edit the loan info */
-//		String view="";
-//		try {
-//			connDao.connect();
-//			String appno=(String) request.getAttribute("appno");
-//			LoanInfo info=connDao.getLoanStatus(appno);
-//			request.setAttribute("LoanInfo", info);
-//			view= "editloanui.jsp";
-//		}
-//		catch(Exception e) {
-//			request.setAttribute("error", e.getMessage());
-//			view = "errorPage.jsp";
-//		}
-//		return view;
 		String view="";
 		try {
 		String loanappnumber=request.getParameter("loanappnumber");
@@ -265,7 +252,8 @@ public class UserController extends HttpServlet {
 		try {
 			connDao.connect();
 			String appno=request.getParameter("appno");
-			if(connDao.validateApplicationNumber(appno)) {
+			String username=(String) session.getAttribute("username");
+			if(connDao.validateApplicationNumber(appno,username)) {
 				request.setAttribute("appno", appno);
 				LoanInfo info=connDao.getLoanStatus(appno);
 				if(info.getStatus().equals("Approved")) {
@@ -293,10 +281,11 @@ public class UserController extends HttpServlet {
 		try {
 			connDao.connect();
 			String appno=request.getParameter("appno");
-			if(connDao.validateApplicationNumber(appno)) {
+			String username=(String) session.getAttribute("username");
+			if(connDao.validateApplicationNumber(appno,username)) {
 				request.setAttribute("message", "Application found");
 				request.setAttribute("appno", appno);
-					view = "user?action=displaystatus";
+				view = "user?action=displaystatus";
 			} else
 			{
 				request.setAttribute("message", "Application Not found");
