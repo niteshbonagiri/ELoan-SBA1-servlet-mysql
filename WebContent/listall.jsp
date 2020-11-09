@@ -21,9 +21,12 @@
 	<% 
 		ArrayList<LoanInfo> list = (ArrayList<LoanInfo>)request.getAttribute("LoanInfo");
 	%>
-	<table border="1" cellspacing="5px" cellpadding="5px">
+	<table border="1" width=600 cellspacing="5px" cellpadding="5px">
+	<%if(list.isEmpty()){%>
+		<h3 align="center">No loan applications</h3>
+	<%} else {%>
 		<tr>
-			<td><label>Loan Application Number</label>  </td>
+			<td><label>Loan App Number</label>  </td>
 			<td><label>Loan Name </label> </td>
 			<td><label> Loan Amount Requested </label></td>
 			<td><label> Loan Application Date </label></td>
@@ -35,12 +38,7 @@
 			<td><label> Email </label></td>
 			<td><label> Status </label></td>
 		</tr>
-	</table>
-	<table border="1" cellspacing="5px" cellpadding="5px">
-	<%if(list.isEmpty()){%>
-		<h3 align="center">No loan applications</h3>
-	<%} else {
-	 for (LoanInfo info:list){%>
+	<% for (LoanInfo info:list){%>
 		<tr>
 			<td><%=info.getApplno()%></td>
 			<td><%=info.getPurpose()%></td>
