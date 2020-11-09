@@ -126,8 +126,14 @@ public class AdminController extends HttpServlet {
 				//request.setAttribute("message", "Application found");
 				request.setAttribute("appno", appno);
 				LoanInfo info=connDao.getLoanStatus(appno);
-				request.setAttribute("LoanInfo", info);
-				view = "calemi.jsp";
+				if(info.getStatus().equals("Approved")) {
+					request.setAttribute("message", "Loan Already Approved");
+					view = "process.jsp";
+				}else {
+					request.setAttribute("LoanInfo", info);
+					view = "calemi.jsp";
+				}
+				
 			} else {
 				request.setAttribute("message", "Application Not found");
 				view = "process.jsp";

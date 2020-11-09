@@ -267,10 +267,14 @@ public class UserController extends HttpServlet {
 			String appno=request.getParameter("appno");
 			if(connDao.validateApplicationNumber(appno)) {
 				request.setAttribute("appno", appno);
-				//view = "user?action=editLoanProcess";
 				LoanInfo info=connDao.getLoanStatus(appno);
+				if(info.getStatus().equals("Approved")) {
+					request.setAttribute("message", "Cannot Edit Application Already Approved");
+					view = "editloan.jsp";
+				}else {
 				request.setAttribute("LoanInfo", info);
 				view= "editloanui.jsp";
+				}
 			} else
 			{
 				request.setAttribute("message", "Application Not found");
