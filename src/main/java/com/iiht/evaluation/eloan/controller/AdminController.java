@@ -1,20 +1,10 @@
 package com.iiht.evaluation.eloan.controller;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -22,26 +12,21 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.iiht.evaluation.eloan.dao.ConnectionDao;
-import com.iiht.evaluation.eloan.dto.LoanDto;
 import com.iiht.evaluation.eloan.model.ApprovedLoan;
 import com.iiht.evaluation.eloan.model.LoanInfo;
+import com.iiht.evaluation.eloan.services.ApprovedLoanServiceImpl;
+import com.iiht.evaluation.eloan.services.LoanInfoServiceImpl;
 
 
 @WebServlet("/admin")
 public class AdminController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private ConnectionDao connDao;
+	private ApprovedLoanServiceImpl approveLoanImpl;
+	private LoanInfoServiceImpl loanInfoImpl;
 	
-	public void setConnDao(ConnectionDao connDao) {
-		this.connDao = connDao;
-	}
-	public void init(ServletConfig config) {
-		String jdbcURL = config.getServletContext().getInitParameter("jdbcUrl");
-		String jdbcUsername = config.getServletContext().getInitParameter("jdbcUsername");
-		String jdbcPassword = config.getServletContext().getInitParameter("jdbcPassword");
-		System.out.println(jdbcURL + jdbcUsername + jdbcPassword);
-		this.connDao = new ConnectionDao(jdbcURL, jdbcUsername, jdbcPassword);
+	public void init() {
+		approveLoanImpl=new ApprovedLoanServiceImpl();
+		loanInfoImpl=new LoanInfoServiceImpl();
 	}
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -91,28 +76,25 @@ public class AdminController extends HttpServlet {
 		int loanAmtSanctioned=Integer.parseInt(request.getParameter("loanAmtSanctioned"));
 		int term=Integer.parseInt(request.getParameter("term"));
 		String paymentstrtdate=request.getParameter("paymentstrtdate");
-		
-		int termPaymentAmount=loanAmtSanctioned*(1+10/100)^term;
-		int emi=termPaymentAmount/term;
-		int months=termPaymentAmount/emi;
-		String loanclosureDate=LocalDate.parse(paymentstrtdate, DateTimeFormatter.ofPattern("yyyy-MM-dd")).plusMonths(months).toString();
+		int emi=approveLoanImpl.calculateEmi(loanAmtSanctioned,term);
+		String loanclosureDate=approveLoanImpl.calculateLoanClosureDate(paymentstrtdate, loanAmtSanctioned, term, emi);
 		String appno= request.getParameter("appno") ;
 		ApprovedLoan loan=new ApprovedLoan(appno,loanAmtSanctioned,term,paymentstrtdate,loanclosureDate,emi);
-		if(connDao.approveLoan(loan)) {
+		if(approveLoanImpl.approveLoan(loan)) {
 			request.setAttribute("message", "Loan Approved");
 			LoanInfo info=new LoanInfo(appno,"Approved");
-			LoanInfo info2=connDao.getLoanStatus(appno);
+			LoanInfo info2=loanInfoImpl.getLoanStatus(appno);
 			request.setAttribute("LoanInfo", info2);
-			if(connDao.updateApproved(info))
+			if(loanInfoImpl.updateApproved(info))
 			{
 				request.setAttribute("status", "Approved");
 			}
 				view = "calemi.jsp";
 		}
-	} catch (Exception e) {
-		request.setAttribute("error", e.getMessage());
-		view = "errorPage.jsp";
-	}
+			} catch (Exception e) {
+				request.setAttribute("error", e.getMessage());
+				view = "errorPage.jsp";
+			}
 	return view;
 	}
 	
@@ -120,12 +102,10 @@ public class AdminController extends HttpServlet {
 	/* write the code to calculate emi for given applno and display the details */
 		String view = "";
 		try {
-			connDao.connect();
 			String appno=request.getParameter("appno");
-			if(connDao.validateApplicationNumber(appno)) {
-				//request.setAttribute("message", "Application found");
+			if(loanInfoImpl.validateApplicationNumber(appno)) {
 				request.setAttribute("appno", appno);
-				LoanInfo info=connDao.getLoanStatus(appno);
+				LoanInfo info=loanInfoImpl.getLoanStatus(appno);
 				if(info.getStatus().equals("Approved")) {
 					request.setAttribute("message", "Loan Already Approved");
 					view = "process.jsp";
@@ -161,12 +141,15 @@ public class AdminController extends HttpServlet {
 	/* write code to return index page */
 		String view = "";
 		try {
-			HttpSession session = request.getSession();
-			session.setAttribute("isAdmin", null);
+			HttpSession session = request.getSession(false);
+			if(session!=null) {
+				session.invalidate();
+			}
+			//session.setAttribute("username", null);
 			view = "index.jsp";
 		} catch (Exception e) {
 			request.setAttribute("error", e.getMessage());
-			view = "error.jsp";
+			view = "errorPage.jsp";
 		}
 		return view;
 	}
@@ -175,8 +158,7 @@ public class AdminController extends HttpServlet {
 	/* write the code to display all the loans */
 		String view="";
 		try {
-			connDao.connect();
-			ArrayList<LoanInfo> list=connDao.getAllLoans();
+			ArrayList<LoanInfo> list=loanInfoImpl.getAllLoans();
 			request.setAttribute("LoanInfo", list);
 			view= "listall.jsp";
 		}

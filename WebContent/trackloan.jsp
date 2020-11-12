@@ -11,7 +11,7 @@
              displaystatus method for displaying the information
 	-->
 	<%@ include file="header.jsp" %>
-	<div align="right"><a href="index.jsp">Logout</a></div>
+	<div align="right"><a href="admin?action=logout">Logout</a></div>
 	<h3>Track Loan</h3>
 	<br/>
 	<%

@@ -4,7 +4,7 @@
 <html>
 <head>
 <meta charset="ISO-8859-1">
-<title>Corona Kit-Not Found</title>
+<title>Not Found</title>
 </head>
 <body>
 <jsp:include page="header.jsp"/>

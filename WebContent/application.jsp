@@ -20,7 +20,7 @@
 		str = request.getAttribute("appno").toString();
 		}
 	%>
-	<div align="right"><a href="index.jsp">Logout</a></div>
+	<div align="right"><a href="admin?action=logout">Logout</a></div>
 	<h3>Loan Application</h3>
 <br/>
 		<%

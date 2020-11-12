@@ -1,42 +1,41 @@
 package com.iiht.evaluation.eloan.dao;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
 
-import javax.servlet.RequestDispatcher;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
 
-import com.iiht.evaluation.eloan.dto.LoanDto;
-import com.iiht.evaluation.eloan.model.ApprovedLoan;
-import com.iiht.evaluation.eloan.model.LoanInfo;
 import com.iiht.evaluation.eloan.model.User;
 
-public class LoanDao {
-	private static final long serialVersionUID = 1L;
-	private String jdbcURL;
-	private String jdbcUsername;
-	private String jdbcPassword;
+public class UserDaoImpl implements UserDao {
+
 	private Connection jdbcConnection;
+	PreparedStatement pstmt;
+	Statement stmt;
+	ResultSet rs;
+	Context ctx=null;
 
-	public LoanDao(String jdbcURL, String jdbcUsername, String jdbcPassword) {
-        this.jdbcURL = jdbcURL;
-        this.jdbcUsername = jdbcUsername;
-        this.jdbcPassword = jdbcPassword;
+	private DataSource ds;
+	
+	public UserDaoImpl() {
+	try {
+		ctx=new InitialContext();
+		ds=(DataSource) ctx.lookup("java:/comp/env/jdbc/eloan");
+		this.connect();
+	} catch (NamingException | SQLException e) {
+		e.printStackTrace();
+		}
     }
-
+	
 	public  Connection connect() throws SQLException {
-		if (jdbcConnection == null || jdbcConnection.isClosed()) {
-			try {
-				Class.forName("com.mysql.jdbc.Driver");
-			} catch (ClassNotFoundException e) {
-				throw new SQLException(e);
-			}
-			jdbcConnection = DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
+		if (jdbcConnection == null || jdbcConnection.isClosed()) {	
+			jdbcConnection = ds.getConnection();
 		}
 		return jdbcConnection;
 	}
@@ -52,8 +51,8 @@ public class LoanDao {
 		String sql = "select * from user where username = '"+username+"'";
 		this.connect();
 		
-		Statement stmt = this.jdbcConnection.createStatement();
-		ResultSet rs =  stmt.executeQuery(sql);
+		stmt = this.jdbcConnection.createStatement();
+		rs =  stmt.executeQuery(sql);
 		if(rs.next()) {
 			String dbPassword = rs.getString(4);
 			if (dbPassword.equals(password)) {
@@ -71,8 +70,8 @@ public class LoanDao {
 		String sql = "select * from user where username = '"+username+"'";
 		this.connect();
 		
-		Statement stmt = this.jdbcConnection.createStatement();
-		ResultSet rs =  stmt.executeQuery(sql);
+		stmt = this.jdbcConnection.createStatement();
+		rs =  stmt.executeQuery(sql);
 		if(rs.next()) {
 				flag=true;
 			}
@@ -86,7 +85,7 @@ public class LoanDao {
 		String sql = "insert into user (firstname,lastname,username,password) values(?,?,?,?)";
 		this.connect();
 		
-		PreparedStatement pstmt = this.jdbcConnection.prepareStatement(sql);
+		pstmt = this.jdbcConnection.prepareStatement(sql);
 		
 		pstmt.setString(1, user.getFirstname());
 		pstmt.setString(2, user.getLastname());
@@ -102,4 +101,5 @@ public class LoanDao {
 			return true;
 		return false;
 	}
+	
 }

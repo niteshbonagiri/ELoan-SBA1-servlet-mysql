@@ -11,7 +11,7 @@
 </head>
 <body>
 <jsp:include page="header.jsp"/>
-<div align="right"><a href="index.jsp">Logout</a></div>
+<div align="right"><a href="admin?action=logout">Logout</a></div>
 <h3>Edit Loan Application</h3>
 <br/>
 		<%

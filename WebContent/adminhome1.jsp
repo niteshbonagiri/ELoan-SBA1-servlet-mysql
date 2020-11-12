@@ -8,7 +8,7 @@
 </head>
 <body>
 <jsp:include page="header.jsp"/>
-<div align="right"><a href="index.jsp">Logout</a></div>
+<div align="right"><a href="admin?action=logout">Logout</a></div>
 <h4>Admin Dash Board</h4>
 <a href="admin?action=listall">List All</a><br>
 <a href="admin?action=process">Process Loan</a><br>

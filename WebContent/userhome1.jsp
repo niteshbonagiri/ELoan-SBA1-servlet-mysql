@@ -9,7 +9,7 @@
 <body>
 	<!-- write the html code to display hyperlinks for user functionalities -->
 <jsp:include page="header.jsp"/>
-<div align="right"><a href="index.jsp">Logout</a></div>
+<div align="right"><a href="admin?action=logout">Logout</a></div>
 <h4>User Dash Board</h4>
 <a href="user?action=application">Apply for Loan</a><br>
 <a href="trackloan.jsp">Track Loan Application</a><br>
